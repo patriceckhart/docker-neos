@@ -1,0 +1,56 @@
+db:
+  image: mariadb:latest
+  expose:
+    - 3306
+  volumes:
+    - /var/lib/data
+  environment:
+    MYSQL_DATABASE: 'neos'
+    MYSQL_USER: 'admin'
+    MYSQL_PASSWORD: 'password'
+    MYSQL_ROOT_PASSWORD: 'root'
+  ports:
+    - '3306:3306'
+  command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+redis:
+  image: redis:alpine
+  ports:
+    - '6379:6379'
+  command: redis-server --requirepass sOmE_sEcUrE_pAsS
+
+web:
+  image: patriceckhart/docker-neos:7.4
+  ports:
+    - '80'
+    - '22'
+  mem_limit: 512m
+  links:
+    - db:db
+    - redis:redis
+  volumes:
+    - /data/neos
+  environment:
+    # CONTAINER_NAME: 0
+    GITHUB_USERNAME: 'patriceckhart'
+    GITHUB_TOKEN: '8f61f0axa5c33223a18469f3277833b48037ffxx'
+    GITHUB_REPOSITORY: 'NeosCMS-Boilerplate.git'
+    GITHUB_REPOSITORY_BRANCH: '7.2'
+    SITE_PACKAGE: 'Raw.Site'
+    RUN_DOCTRINE_MIGRATE: 1
+    RUN_DOCTRINE_UPDATE: 1
+    DB_DATABASE: 'db'
+    DB_USER: 'admin'
+    DB_PASS: 'password'
+    DB_HOST: 'neos'
+    NGINX_CLIENT_BODY_SIZE: '512M'
+    # PERSISTENT_RESOURCES_FALLBACK_BASE_URI: 'https://foobar.com'
+    # a dev. subdomain automatically activates development mode
+    VIRTUAL_HOST: dev.neos.local
+    # PHP_TIMEZONE: 0
+    # PHP_MEMORY_LIMIT: '4096M'
+    PHP_UPLOAD_MAX_FILESIZE: '100M'
+    # PHP_MAX_EXECUTION_TIME: 0
+    # PHP_MAX_INPUT_VARS: 0
+    IMAGINE_DRIVER: 'Imagick'
+    FLOW_CONTEXT: 'Production'
