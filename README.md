@@ -39,7 +39,7 @@ This image supports following environment variable for automatically configuring
 
 ### Example docker-compose.yml configuration ###
 
-```
+```yaml
 web:
   image: patriceckhart/docker-neos:7.4
   ports:
