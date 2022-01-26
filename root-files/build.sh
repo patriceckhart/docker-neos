@@ -40,8 +40,6 @@ if [ ! -e "$GITHUB_REPOSITORY" ]; then
 				git pull https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$GITHUB_REPOSITORY /data/neos
 			fi 
 
-			composer config -g github-oauth.github.com $GITHUB_TOKEN
-
 		fi
 
 		touch /data/.pulled
@@ -55,6 +53,8 @@ if [ ! -e "$GITHUB_REPOSITORY" ]; then
 		touch /data/.built
 
 	fi
+
+	composer config -g github-oauth.github.com $GITHUB_TOKEN
 
 fi
 
