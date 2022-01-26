@@ -45,6 +45,8 @@ echo "sshd has started."
 /usr/sbin/crond -S
 echo "crond has started."
 
+su root -c "/root-files/opt/custom.sh"
+
 echo "Container is up und running."
 
 tail -f /dev/null
