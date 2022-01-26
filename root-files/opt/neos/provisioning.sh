@@ -20,6 +20,15 @@ if [ ! -z ${RUN_DOCTRINE_UPDATE+x} ]; then
 
 fi
 
+if [ ! -z ${RUN_FLUSHCACHE+x} ]; then
+
+	echo "Flushing cache ..."
+
+	su root -c "/root-files/opt/neos/cli/cli-flushcache.sh"
+	su root -c "/root-files/opt/neos/cli/cli-permissions.sh"
+
+fi
+
 if [ ! -z ${SITE_PACKAGE+x} ]; then 
 
 	if [ ! -e "$PROVISIONINGFILE" ]; then
