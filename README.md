@@ -13,6 +13,11 @@ This image supports following environment variable for automatically configuring
 |---------|-------------|
 |GITHUB_REPOSITORY|Link to Neos CMS website distribution|
 |GITHUB_USERNAME|Will pull authorized keys allowed to connect to the container via ssh|
+|FLOW_CONTEXT|`Development` or `Production`|
+|IMAGINE_DRIVER|`Imagick` or `Vips`|
+|PHP_UPLOAD_MAX_FILESIZE|PHP upload maximum filesize eg. `10M`|
+|PHP_MEMORY_LIMIT|PHP memory limit e.g. `512M`|
+|NGINX_CLIENT_BODY_SIZE|Nginx client body size e.g. `512M`|
 
 #### Optional env vars ####
 
@@ -28,14 +33,13 @@ This image supports following environment variable for automatically configuring
 |CONTAINERNAME|Container name for different processes around the container|
 |VIRTUAL_HOST|Virtual host if a Nginx proxy is used|
 |PERSISTENT_RESOURCES_FALLBACK_BASE_URI|`http://foo.bar` The live url to load locally unavailable resources|
-|NGINX_CLIENT_BODY_SIZE|Nginx client body size|
 |PHP_TIMEZONE|PHP timezone|
-|PHP_MEMORY_LIMIT|PHP memory limit|
-|PHP_UPLOAD_MAX_FILESIZE|PHP upload maximum filesize|
 |PHP_MAX_EXECUTION_TIME|PHP max execution time|
 |PHP_MAX_INPUT_VARS|PHP max input vars|
-|IMAGINE_DRIVER|Imagick|
-|FLOW_CONTEXT|Development|
+|RUN_DOCTRINE_MIGRATE|1|Run `./flow doctrine:migrate` at container start|
+|RUN_DOCTRINE_UPDATE|1|Run `./flow doctrine:update` at container start|
+|RUN_FLUSHCACHE|1|Run `./flow flow:cache:flush` and `./flow flow:cache:flush --force` at container start|
+|RUN_STARTUP_SCRIPT|1|Run `startup.sh` after container start|
 
 ### Example docker-compose.yml configuration ###
 
@@ -58,6 +62,7 @@ web:
     SITE_PACKAGE: 'Raw.Site'
     RUN_DOCTRINE_MIGRATE: 1
     RUN_DOCTRINE_UPDATE: 1
+    RUN_FLUSHCACHE: 1
     DB_DATABASE: 'db'
     DB_USER: 'admin'
     DB_PASS: 'password'
@@ -92,16 +97,17 @@ mariadb:
 
 ### Cronjobs ###
 
-In `/data/cron` there are folders named `1min`, `5min`, `15min`, `30min`, `hourly`, `daily`, `weekly` and `monthly`. Files can be stored in this folder in the following scheme: `100-backup`, `200-update`, `300-customname`, ...
+Now user-defined cron jobs can even be created easily. Simply create a folder called `cron`, another folder in the `cron` folder called `1min` and in this `1min` folder a file called `100-backup`, commit it to your project's root directory and deploy it.
 
-#### Example `100-backup` in `/data/cron/daily` ####
+This procedure works with the following folders: `1min`, `5min`, `15min`, `30min`, `hourly`, `daily`, `weekly` and `monthly`. Files can be stored in this folders in the following scheme: `100-backup`, `200-update`, `300-customname`, ...
+
+#### Example `100-backup` ####
 
 ```
 #!/bin/sh
 
 cd /data/neos && ./flow backup:create
 ```
-Don't forget: `chmod 775 100-backup`
 
 ### SSH Access ###
 
