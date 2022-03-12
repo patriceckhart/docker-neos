@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine3.14
+FROM php:8.0-fpm-alpine3.14
 
 MAINTAINER Patric Eckhart <mail@patriceckhart.com>
 
@@ -15,7 +15,6 @@ RUN set -x \
 		intl \
 		exif \
 		tokenizer \
-		json \
 	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev autoconf \
 	&& deluser www-data \
 	&& delgroup cdrw \
