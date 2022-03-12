@@ -54,6 +54,10 @@ if [ ! -e "$GITHUB_REPOSITORY" ]; then
 
 	fi
 
+fi
+
+if [ ! -e "$GITHUB_TOKEN" ]; then
+
 	composer config -g github-oauth.github.com $GITHUB_TOKEN
 
 fi
