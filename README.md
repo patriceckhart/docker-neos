@@ -45,7 +45,7 @@ This image supports following environment variable for automatically configuring
 
 ```yaml
 web:
-  image: patriceckhart/docker-neos:7.4
+  image: patriceckhart/docker-neos:8.0
   ports:
     - '80'
     - '22:22'
@@ -58,7 +58,7 @@ web:
     GITHUB_USERNAME: 'patriceckhart'
     GITHUB_TOKEN: 'yourgithubtoken'
     GITHUB_REPOSITORY: 'https://github.com/patriceckhart/NeosCMS-Boilerplate.git'
-    GITHUB_REPOSITORY_BRANCH: '7.2'
+    GITHUB_REPOSITORY_BRANCH: '7.3'
     SITE_PACKAGE: 'Raw.Site'
     RUN_DOCTRINE_MIGRATE: 1
     RUN_DOCTRINE_UPDATE: 1
