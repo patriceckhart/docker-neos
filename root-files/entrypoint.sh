@@ -18,6 +18,8 @@ su root -c "/root-files/opt/cli.sh"
 
 su root -c "/root-files/build.sh"
 
+su root -c "/root-files/opt/neos/temp.sh"
+
 su root -c "/root-files/opt/crond.sh"
 
 chown -R www-data:www-data /data
