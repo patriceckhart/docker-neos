@@ -4,6 +4,12 @@ GITFILE=/data/neos/.git
 PULLEDFILE=/data/.pulled
 BUILTFILE=/data/.built
 
+if [ ! -e "$GITHUB_TOKEN" ]; then
+
+	composer config -g github-oauth.github.com $GITHUB_TOKEN
+
+fi
+
 if [ ! -e "$GITHUB_REPOSITORY" ]; then
 
 	if [ ! -e "$PULLEDFILE" ]; then
@@ -53,12 +59,6 @@ if [ ! -e "$GITHUB_REPOSITORY" ]; then
 		touch /data/.built
 
 	fi
-
-fi
-
-if [ ! -e "$GITHUB_TOKEN" ]; then
-
-	composer config -g github-oauth.github.com $GITHUB_TOKEN
 
 fi
 
