@@ -14,7 +14,6 @@ RUN set -x \
 		opcache \
 		intl \
 		exif \
-		tokenizer \
 	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev autoconf \
 	&& deluser www-data \
 	&& delgroup cdrw \
