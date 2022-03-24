@@ -1,0 +1,118 @@
+server {
+
+  set ${DOLLAR}persistentResourceFallbackBaseUri ${PERSISTENT_RESOURCES_FALLBACK_BASE_URI};
+
+  listen 80;
+
+  client_max_body_size ${NGINX_CLIENT_BODY_SIZE};
+
+  root /data/neos/Web;
+
+  index index.php;
+
+  location ~* ^/_Resources/Persistent/(.*)${DOLLAR} {
+    access_log off;
+    expires max;
+    try_files ${DOLLAR}uri @fallback;
+  }
+
+  location @fallback {
+    add_header Via 'Neos Asset Fallback';
+    resolver 8.8.8.8;
+    if (${DOLLAR}persistentResourceFallbackBaseUri = ${DOLLAR}persistentResourceFallbackBaseUri) {
+      proxy_pass ${DOLLAR}persistentResourceFallbackBaseUri;
+    }
+  }
+
+  location / {
+    try_files ${DOLLAR}uri /index.php?${DOLLAR}args;
+  }
+
+  location ~ /\. {
+    deny all;
+    return 404;
+    log_not_found off;
+  }
+
+  location ~* \.(?:jpe?g|gif|png|ico|swf|svg|eot|ttf|otf|woff2?|htc)$ {
+    expires max;
+  }
+
+  location = /favicon.ico {
+    log_not_found off;
+  }
+
+  set ${DOLLAR}context Production;
+  if (${DOLLAR}host ~ \bdev\.) { set ${DOLLAR}context Development; }
+
+  location ~ \.php${DOLLAR} {
+    fastcgi_split_path_info ^(.+\.(?:php|phar))(/.*)${DOLLAR};
+    fastcgi_intercept_errors on;
+    fastcgi_index  index.php;
+    include fastcgi_params;
+    fastcgi_param PATH_INFO ${DOLLAR}fastcgi_path_info;
+    fastcgi_param SCRIPT_FILENAME ${DOLLAR}document_root${DOLLAR}fastcgi_script_name;
+    fastcgi_pass unix:/var/run/php-fpm.sock;
+    fastcgi_param FLOW_CONTEXT ${DOLLAR}context;
+    fastcgi_param FLOW_REWRITEURLS 1;
+
+    fastcgi_param  QUERY_STRING       ${DOLLAR}query_string;
+    fastcgi_param  REQUEST_METHOD     ${DOLLAR}request_method;
+    fastcgi_param  CONTENT_TYPE       ${DOLLAR}content_type;
+    fastcgi_param  CONTENT_LENGTH     ${DOLLAR}content_length;
+
+    fastcgi_param  SERVER_PORT        ${DOLLAR}server_port;
+
+    fastcgi_param  SCRIPT_NAME        ${DOLLAR}fastcgi_script_name;
+    fastcgi_param  REQUEST_URI        ${DOLLAR}request_uri;
+    fastcgi_param  DOCUMENT_URI       ${DOLLAR}document_uri;
+    fastcgi_param  DOCUMENT_ROOT      ${DOLLAR}document_root;
+    fastcgi_param  SERVER_PROTOCOL    ${DOLLAR}server_protocol;
+    fastcgi_param  HTTPS              ${DOLLAR}https if_not_empty;
+
+    fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+    fastcgi_param  SERVER_SOFTWARE    nginx/${DOLLAR}nginx_version;
+
+    fastcgi_param  REMOTE_ADDR        ${DOLLAR}remote_addr;
+    fastcgi_param  REMOTE_PORT        ${DOLLAR}remote_port;
+    fastcgi_param  SERVER_ADDR        ${DOLLAR}server_addr;
+
+    fastcgi_param  SERVER_NAME        ${DOLLAR}http_host;
+
+    fastcgi_param  REDIRECT_STATUS    200;
+
+    fastcgi_connect_timeout 10;
+    fastcgi_send_timeout 600;
+    fastcgi_read_timeout 600;
+    fastcgi_buffer_size 32k;
+    fastcgi_buffers 32 4k;
+    fastcgi_busy_buffers_size 64k;
+    fastcgi_temp_file_write_size 256k;
+    fastcgi_pass_header on;
+    fastcgi_keep_conn on;
+
+    fastcgi_cache neos;
+    fastcgi_cache_methods GET HEAD;
+    fastcgi_cache_valid 200 301 302 5s;
+    fastcgi_cache_use_stale updating error timeout invalid_header;
+    fastcgi_cache_background_update off;
+    add_header X-Nginx-Cache \${DOLLAR}upstream_cache_status;
+
+  }
+
+  # Include own nginx server block configuration (Github repository)
+  include /data/neos/nginx/*.conf;
+}
+
+disable_symlinks off;
+gzip on;
+gzip_http_version 1.0;
+gzip_comp_level 4;
+gzip_proxied any;
+gzip_types text/plain text/css application/x-javascript text/xml application/xml application/rss+xml application/atom+xml text/javascript application/javascript application/json text/mathml image/svg+xml;
+gzip_min_length 256;
+gzip_disable "MSIE [1-6]\.";
+gzip_static on;
+access_log off;
+fastcgi_cache_path /etc/nginx-cache levels=1:2 keys_zone=neos:10m max_size=${NGINX_CLIENT_BODY_SIZE};
+fastcgi_cache_key \${DOLLAR}request_method\${DOLLAR}scheme\${DOLLAR}host\${DOLLAR}request_uri;
