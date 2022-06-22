@@ -25,7 +25,7 @@ if [ ! -d "$THIRTYMINUTECRONDIR" ]; then
 
 fi
 
-CRONDIR="/data/cron/"
+CRONDIR="/data/neos/cron/"
 
 if [ -d "$CRONDIR" ]; then
   echo "Cron directory exist."
@@ -33,55 +33,54 @@ else
   echo "Create cron directory ..."
   mkdir -p /data/cron
   echo "Cron directory created."
-
 fi
 
-if [ -d "/data/cron/1min" ]; then
+if [ -d "/data/neos/cron/1min" ]; then
   echo "Cron 1 min directory exist."
 else
-  mkdir -p /data/cron/1min
+  mkdir -p /data/neos/cron/1min
   echo "Cron 1 min directory created."
 fi
-if [ -d "/data/cron/5min" ]; then
+if [ -d "/data/neos/cron/5min" ]; then
   echo "Cron 5 min directory exist."
 else
-  mkdir -p /data/cron/5min
+  mkdir -p /data/neos/cron/5min
   echo "Cron 5 min directory created."
 fi
-if [ -d "/data/cron/15min" ]; then
+if [ -d "/data/neos/cron/15min" ]; then
   echo "Cron 15 min directory exist."
 else
-  mkdir -p /data/cron/15min
+  mkdir -p /data/neos/cron/15min
   echo "Cron 15 min directory created."
 fi
-if [ -d "/data/cron/30min" ]; then
+if [ -d "/data/neos/cron/30min" ]; then
   echo "Cron 30 min directory exist."
 else
-  mkdir -p /data/cron/30min
+  mkdir -p /data/neos/cron/30min
   echo "Cron 30 min directory created."
 fi
-if [ -d "/data/cron/hourly" ]; then
+if [ -d "/data/neos/cron/hourly" ]; then
   echo "Cron hourly directory exist."
 else
-  mkdir -p /data/cron/hourly
+  mkdir -p /data/neos/cron/hourly
   echo "Cron hourly directory created."
 fi
-if [ -d "/data/cron/daily" ]; then
+if [ -d "/data/neos/cron/daily" ]; then
   echo "Cron daily directory exist."
 else
-  mkdir -p /data/cron/daily
+  mkdir -p /data/neos/cron/daily
   echo "Cron daily directory created."
 fi
-if [ -d "/data/cron/weekly" ]; then
+if [ -d "/data/neos/cron/weekly" ]; then
   echo "Cron weekly directory exist."
 else
-  mkdir -p /data/cron/weekly
+  mkdir -p /data/neos/cron/weekly
   echo "Cron weekly directory created."
 fi
-if [ -d "/data/cron/monthly" ]; then
+if [ -d "/data/neos/cron/monthly" ]; then
   echo "Cron monthly directory exist."
 else
-  mkdir -p /data/cron/monthly
+  mkdir -p /data/neos/cron/monthly
   echo "Cron monthly directory created."
 fi
 
@@ -94,11 +93,14 @@ rm -rf /etc/periodic/daily
 rm -rf /etc/periodic/weekly
 rm -rf /etc/periodic/monthly
 
-ln -s /data/cron/1min /etc/periodic/1min
-ln -s /data/cron/5min /etc/periodic/5min
-ln -s /data/cron/15min /etc/periodic/15min
-ln -s /data/cron/30min /etc/periodic/30min
-ln -s /data/cron/hourly /etc/periodic/hourly
-ln -s /data/cron/daily /etc/periodic/daily
-ln -s /data/cron/weekly /etc/periodic/weekly
-ln -s /data/cron/monthly /etc/periodic/monthly
+ln -s /data/neos/cron/1min /etc/periodic/1min
+ln -s /data/neos/cron/5min /etc/periodic/5min
+ln -s /data/neos/cron/15min /etc/periodic/15min
+ln -s /data/neos/cron/30min /etc/periodic/30min
+ln -s /data/neos/cron/hourly /etc/periodic/hourly
+ln -s /data/neos/cron/daily /etc/periodic/daily
+ln -s /data/neos/cron/weekly /etc/periodic/weekly
+ln -s /data/neos/cron/monthly /etc/periodic/monthly
+
+chown -R www-data:www-data /data/neos/cron
+chmod -R 775 /data/neos/cron

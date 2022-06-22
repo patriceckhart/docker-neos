@@ -14,16 +14,19 @@ echo "PHP configuration completed."
 chmod 066 /var/run/php-fpm.sock
 chown www-data:www-data /var/run/php-fpm.sock
 
+su root -c "/root-files/opt/dir.sh"
+
+su root -c "/root-files/opt/ssl.sh"
+
 su root -c "/root-files/opt/cli.sh"
 
-su root -c "/root-files/build.sh"
+su www-data -c "/root-files/build.sh"
 
-su root -c "/root-files/opt/neos/temp.sh"
+su root -c "/root-files/opt/env.sh"
+
+su www-data -c "/root-files/opt/neos/provisioning.sh"
 
 su root -c "/root-files/opt/crond.sh"
-
-chown -R www-data:www-data /data
-chmod -R g+rwx /data
 
 echo "Start configuring sshd ..."
 
@@ -47,7 +50,7 @@ echo "sshd has started."
 /usr/sbin/crond -S
 echo "crond has started."
 
-su root -c "/root-files/opt/custom.sh"
+su www-data -c "/root-files/opt/custom.sh"
 
 echo "Container is up und running."
 

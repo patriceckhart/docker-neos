@@ -3,14 +3,7 @@
 cd /data/neos && ./flow flow:cache:flush
 cd /data/neos && ./flow flow:cache:flush --force
 
-if [ ! -z "$1" ]; then
-	if [ "$1" == "--removetempdir" ]; then
-
-		rm -rf /data/neos/Data/Temporary
-
-	fi
+if [ "$FLOW_CONTEXT" == "Production" ]; then
+	su www-data -c "/root-files/opt/neos/cli/cli-warmupcache.sh"
 fi
 
-su root -c "/root-files/opt/neos/cli/cli-warmupcache.sh"
-
-su root -c "/root-files/opt/neos/cli/cli-permissions.sh"
