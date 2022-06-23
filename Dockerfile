@@ -2,6 +2,11 @@ FROM php:8.1-fpm-alpine3.14
 
 MAINTAINER Patric Eckhart <mail@patriceckhart.com>
 
+ENV COMPOSER_VERSION 2.3.5
+ENV PERSISTENT_RESOURCES_FALLBACK_BASE_URI 0
+ENV HOME /data/neos
+ENV FLOW_PATH_TEMPORARY_BASE /data/neos/Data/Temporary
+
 RUN set -x \
 	&& apk update \
 	&& apk add bash \
@@ -44,7 +49,7 @@ RUN set -x \
 	&& cd /tmp \
 	&& pecl install ssh2-1.3.1 && docker-php-ext-enable ssh2 \
 	&& pecl install yaml && echo "extension=yaml.so" > /usr/local/etc/php/conf.d/ext-yaml.ini && docker-php-ext-enable --ini-name ext-yaml.ini yaml \
-	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=2.1.14 && rm -rf /tmp/composer-setup.php \
+	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
 	&& echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config \
 	&& rm -rf /var/cache/apk/* \
 	&& apk add tzdata \
@@ -52,15 +57,11 @@ RUN set -x \
 	&& rm -rf /var/cache/apk/* \
 	&& mkdir -p /run/nginx
 
-ENV PERSISTENT_RESOURCES_FALLBACK_BASE_URI 0
-
-ENV HOME=/data/neos
-
-EXPOSE 80 22
+EXPOSE 80 443 22
 
 WORKDIR /data
 
 COPY /root-files/ /root-files/
-RUN chmod -R 755 /root-files
+RUN chown -R www-data:www-data /data/neos && chmod -R g+rwx /data/neos && chmod -R 775 /data/neos && chown -R www-data:www-data /root-files && chmod -R 775 /root-files
 
 ENTRYPOINT ["/root-files/entrypoint.sh"]

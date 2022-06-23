@@ -1,9 +1,15 @@
 server {
 
   set ${DOLLAR}persistentResourceFallbackBaseUri ${PERSISTENT_RESOURCES_FALLBACK_BASE_URI};
+  set ${DOLLAR}flowContext ${FLOW_CONTEXT};
 
-  listen 80;
-
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  listen 443 ssl http2 default_server;
+  listen [::]:443 ssl http2 default_server;
+  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+  
   client_max_body_size ${NGINX_CLIENT_BODY_SIZE};
 
   root /data/neos/Web;
@@ -44,6 +50,7 @@ server {
 
   set ${DOLLAR}context Production;
   if (${DOLLAR}host ~ \bdev\.) { set ${DOLLAR}context Development; }
+  if (${DOLLAR}flowContext != "") { set ${DOLLAR}context ${DOLLAR}flowContext; }
 
   location ~ \.php${DOLLAR} {
     fastcgi_split_path_info ^(.+\.(?:php|phar))(/.*)${DOLLAR};
