@@ -50,7 +50,8 @@ echo "sshd has started."
 /usr/sbin/crond -S
 echo "crond has started."
 
-su www-data -c "/root-files/opt/custom.sh"
+su root -c "/root-files/opt/custom-root.sh"
+su www-data -c "/root-files/opt/custom-user.sh"
 
 echo "Container is up und running."
 
