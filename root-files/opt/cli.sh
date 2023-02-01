@@ -34,3 +34,6 @@ chmod g+rwx /usr/local/bin/silent
 
 cp /root-files/opt/neos/cli/cli-permissions.sh /usr/local/bin/setpermissions
 chmod g+rwx /usr/local/bin/setpermissions
+
+cp /root-files/opt/neos/cli/cli-addtoken.sh /usr/local/bin/addtoken
+chmod g+rwx /usr/local/bin/addtoken

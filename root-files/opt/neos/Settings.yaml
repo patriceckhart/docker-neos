@@ -2,11 +2,13 @@ Neos:
   Flow:
     persistence:
       backendOptions:
-        driver: pdo_mysql
+        driver: ${DB_DRIVER}
+        charset: '${DB_CHARSET}'
         dbname: '${DB_DATABASE}'
         user: '${DB_USER}'
         password: '${DB_PASS}'
         host: '${DB_HOST}'
+        port: '${DB_PORT}'
   Imagine:
     driver: '${IMAGINE_DRIVER}'
     enabledDrivers:

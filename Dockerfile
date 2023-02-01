@@ -1,16 +1,20 @@
-FROM php:8.1-fpm-alpine3.14
+FROM php:8.1-fpm-alpine3.17
 
 MAINTAINER Patric Eckhart <mail@patriceckhart.com>
 
-ENV COMPOSER_VERSION 2.3.5
+ENV COMPOSER_VERSION 2.5.1
 ENV PERSISTENT_RESOURCES_FALLBACK_BASE_URI 0
 ENV HOME /data/neos
 ENV FLOW_PATH_TEMPORARY_BASE /data/neos/Data/Temporary
 
+ENV DB_DRIVER pdo_mysql
+ENV DB_CHARSET utf8mb4
+ENV DB_PORT 3306
+
 RUN set -x \
 	&& apk update \
 	&& apk add bash \
-	&& apk add nano gettext git nginx tar curl postfix mariadb-client optipng freetype libjpeg-turbo-utils icu-dev vips-dev vips-tools openssh pwgen build-base && apk add --virtual libtool freetype-dev libpng-dev libjpeg-turbo-dev yaml-dev libssh2-dev \
+	&& apk add nano gettext git nginx tar curl postfix mariadb-client optipng freetype libjpeg-turbo-utils icu-dev vips-dev vips-tools openssh pwgen build-base && apk add --virtual libtool freetype-dev libpng-dev libjpeg-turbo-dev yaml-dev libssh2-dev php81-pecl-igbinary \
 	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
 	&& docker-php-ext-install \
 		gd \
@@ -19,7 +23,7 @@ RUN set -x \
 		opcache \
 		intl \
 		exif \
-	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev autoconf \
+	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev autoconf postgresql-dev \
 	&& deluser www-data \
 	&& delgroup cdrw \
 	&& addgroup -g 80 www-data \
@@ -40,6 +44,7 @@ RUN set -x \
 	&& docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
 	&& docker-php-ext-install imap \
 	&& docker-php-ext-enable imap \
+	&& docker-php-ext-install pdo pdo_pgsql \
 	&& apk add \
 	       libzip-dev \
 	       zip \

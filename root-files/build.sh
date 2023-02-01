@@ -4,6 +4,8 @@ GITFILE=/data/neos/.git
 PULLEDFILE=/data/.pulled
 BUILTFILE=/data/.built
 
+git config --global --add safe.directory /data/neos
+
 if [ ! -z "${GITHUB_TOKEN+xxx}" ]; then
 
 	composer config -g github-oauth.github.com $GITHUB_TOKEN

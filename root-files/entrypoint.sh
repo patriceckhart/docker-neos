@@ -8,6 +8,7 @@ echo "upload_max_filesize=${PHP_UPLOAD_MAX_FILESIZE:-10M}" > $PHP_INI_DIR/conf.d
 echo "post_max_size=${PHP_UPLOAD_MAX_FILESIZE:-10M}" > $PHP_INI_DIR/conf.d/post_max_size.ini
 echo "max_execution_time=${PHP_MAX_EXECUTION_TIME:-240}" > $PHP_INI_DIR/conf.d/max_execution_time.ini
 echo "max_input_vars=${PHP_MAX_INPUT_VARS:-1500}" > $PHP_INI_DIR/conf.d/max_input_vars.ini
+echo "expose_php=${PHP_EXPOSE:-Off}" > $PHP_INI_DIR/conf.d/expose_php.ini
 echo "PHP configuration completed."
 
 /usr/local/sbin/php-fpm -y /usr/local/etc/php-fpm.conf -R -D
