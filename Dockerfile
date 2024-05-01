@@ -58,7 +58,6 @@ RUN set -x \
            ./configure && \
            make && \
            make install && \
-           apk del git && \
            docker-php-ext-enable imagick \
 	&& pecl install vips && echo "extension=vips.so" > /usr/local/etc/php/conf.d/ext-vips.ini && docker-php-ext-enable --ini-name ext-vips.ini vips \
 	&& cd /tmp \
