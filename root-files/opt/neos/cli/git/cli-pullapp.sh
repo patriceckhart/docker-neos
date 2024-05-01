@@ -13,7 +13,7 @@ fi
 if [ ! -z "$1" ]; then
 	if [ "$1" == "--force" ]; then
 
-        su www-data -c "/root-files/opt/neos/cli/cli-doctrinemigrate.sh"
+    su www-data -c "/root-files/opt/neos/cli/cli-doctrinemigrate.sh"
 		su www-data -c "/root-files/opt/neos/cli/cli-doctrineupdate.sh"
 		su www-data -c "/root-files/opt/neos/cli/cli-noderepair.sh"
 
