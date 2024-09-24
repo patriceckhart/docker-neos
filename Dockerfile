@@ -2,7 +2,7 @@ FROM php:8.3-fpm-alpine3.19
 
 MAINTAINER Patric Eckhart <mail@patriceckhart.com>
 
-ENV COMPOSER_VERSION 2.7.4
+ENV COMPOSER_VERSION 2.7.9
 ENV PERSISTENT_RESOURCES_FALLBACK_BASE_URI 0
 ENV HOME /data/neos
 ENV FLOW_PATH_TEMPORARY_BASE /data/neos/Data/Temporary
@@ -23,7 +23,7 @@ RUN set -x \
 		opcache \
 		intl \
 		exif \
-	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev autoconf postgresql-dev \
+	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev imagemagick-pdf ghostscript autoconf postgresql-dev \
 	&& deluser www-data \
 	&& delgroup cdrw \
 	&& addgroup -g 80 www-data \
