@@ -15,22 +15,14 @@ echo "PHP configuration completed."
 chmod 066 /var/run/php-fpm.sock
 chown www-data:www-data /var/run/php-fpm.sock
 
-su root -c "/root-files/opt/dir.sh"
-
+su root -c "/root-files/opt/temp.sh"
 su root -c "/root-files/opt/ssl.sh"
-
-su root -c "/root-files/opt/cli.sh"
-
-su www-data -c "/root-files/build.sh"
-
-su root -c "/root-files/opt/env.sh"
-
+su root -c "/root-files/opt/cmd.sh"
 su www-data -c "/root-files/opt/neos/provisioning.sh"
-
+su root -c "/root-files/opt/flow-settings.sh"
 su root -c "/root-files/opt/crond.sh"
 
 echo "Start configuring sshd ..."
-
 su root -c "/root-files/opt/sshd.sh"
 
 chown -Rf nginx:nginx /var/lib/nginx
@@ -38,9 +30,6 @@ chown -Rf nginx:nginx /var/lib/nginx
 echo "Starting services ..."
 
 su root -c "/root-files/opt/nginx/env.sh"
-
-nginx
-echo "nginx has started."
 
 postfix start
 echo "postfix has started."
@@ -54,7 +43,9 @@ echo "crond has started."
 su root -c "/root-files/opt/custom-root.sh"
 su www-data -c "/root-files/opt/custom-user.sh"
 
+echo "Starting nginx ..."
+(nginx && echo "nginx has started.") || { echo "nginx failed to start"; exit 1; } &
+
 echo "Container is up und running."
 
-tail -f /dev/null
-#exec "$@"
+wait

@@ -1,33 +1,33 @@
 set -e
 
-ONEMINUTECRONDIR="/etc/periodic/1min"
-FIVEMINUTECRONDIR="/etc/periodic/5min"
-THIRTYMINUTECRONDIR="/etc/periodic/30min"
+ONE_MINUTE_CRON_DIR="/etc/periodic/1min"
+FIVE_MINUTE_CRON_DIR="/etc/periodic/5min"
+THIRTY_MINUTE_CRON_DIR="/etc/periodic/30min"
 
-if [ ! -d "$ONEMINUTECRONDIR" ]; then
+if [ ! -d "$ONE_MINUTE_CRON_DIR" ]; then
 
   mkdir /etc/periodic/1min
   crontab -l | { echo "*       *       *       *       *       run-parts /etc/periodic/1min"; cat; } | crontab -
 
 fi
 
-if [ ! -d "$FIVEMINUTECRONDIR" ]; then
+if [ ! -d "$FIVE_MINUTE_CRON_DIR" ]; then
 
   mkdir /etc/periodic/5min
   crontab -l | { echo "*/5     *       *       *       *       run-parts /etc/periodic/5min"; cat; } | crontab -
 
 fi
 
-if [ ! -d "$THIRTYMINUTECRONDIR" ]; then
+if [ ! -d "$THIRTY_MINUTE_CRON_DIR" ]; then
 
   mkdir /etc/periodic/30min
   crontab -l | { echo "*/30     *       *       *       *       run-parts /etc/periodic/30min"; cat; } | crontab -
 
 fi
 
-CRONDIR="/data/neos/cron/"
+CRON_DIR="/data/neos/cron/"
 
-if [ -d "$CRONDIR" ]; then
+if [ -d "$CRON_DIR" ]; then
   echo "Cron directory exist."
 else
   echo "Create cron directory ..."

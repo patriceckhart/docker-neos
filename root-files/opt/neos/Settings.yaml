@@ -2,15 +2,15 @@ Neos:
   Flow:
     persistence:
       backendOptions:
-        driver: ${DB_DRIVER}
-        charset: '${DB_CHARSET}'
-        dbname: '${DB_DATABASE}'
-        user: '${DB_USER}'
-        password: '${DB_PASS}'
-        host: '${DB_HOST}'
-        port: '${DB_PORT}'
+        driver: '%env:DB_DRIVER%'
+        charset: '%env:DB_CHARSET%'
+        dbname: '%env:DB_DATABASE%'
+        user: '%env:DB_USER%'
+        password: '%env:DB_PASS%'
+        host: '%env:DB_HOST%'
+        port: '%env:DB_PORT%'
   Imagine:
-    driver: '${IMAGINE_DRIVER}'
+    driver: '%env:IMAGINE_DRIVER%'
     enabledDrivers:
       Vips: true
       Gd: true

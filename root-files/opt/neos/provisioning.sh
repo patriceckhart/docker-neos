@@ -1,42 +1,68 @@
 #!/bin/bash
 
-PROVISIONINGFILE=/data/.provisioned
+GITFILE=/data/neos/.git
+PULLEDFILE=/data/.pulled
+BUILTFILE=/data/.built
 
-if [ ! -z ${RUN_DOCTRINE_MIGRATE+x} ]; then
+git config --global --add safe.directory /data/neos
 
-	echo "Migrate database ..."
+if [ ! -z "${GITHUB_TOKEN+xxx}" ]; then
 
-	doctrinemigrate
-
-fi
-
-if [ ! -z ${RUN_DOCTRINE_UPDATE+x} ]; then
-
-	echo "Update database ..."
-
-	doctrineupdate
+	composer config -g github-oauth.github.com $GITHUB_TOKEN
 
 fi
 
-if [ ! -z ${RUN_FLUSHCACHE+x} ]; then
+if [ ! -z "${GITHUB_REPOSITORY+xxx}" ]; then
 
-	echo "Flushing cache ..."
+	if [ ! -e "$PULLEDFILE" ]; then
 
-	flushcache
+		if [ -z ${GITHUB_TOKEN+x} ]; then
 
-fi
+			if [ ! -e "$GITFILE" ]; then
+				git clone $GITHUB_REPOSITORY /data/neos
+			else
+				git pull $GITHUB_REPOSITORY /data/neos
+			fi
 
-if [ ! -z ${SITE_PACKAGE+x} ]; then
+		else
 
-	if [ ! -e "$PROVISIONINGFILE" ]; then
+			if [ ! -e "$GITFILE" ]; then
 
-		echo "Provisioning Neos ..."
+				cd /data/neos && git init
+				cd /data/neos && git remote add origin https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$GITHUB_REPOSITORY
+				cd /data/neos && git fetch
 
-		flushcache
+				if [ ! -e "$GITHUB_REPOSITORY_BRANCH" ]; then
 
-		cd /data/neos && ./flow site:import --package-key ${SITE_PACKAGE}
+					cd /data/neos && git checkout -t origin/$GITHUB_REPOSITORY_BRANCH
 
-		touch /data/.provisioned
+				else
+
+					cd /data/neos && git checkout -t origin/master
+
+				fi
+
+			else
+				git pull https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$GITHUB_REPOSITORY /data/neos
+			fi
+
+		fi
+
+		touch /data/.pulled
+
+	fi
+
+	if [ ! -f "$BUILTFILE" ]; then
+
+		composer clear-cache --no-interaction
+
+		if [ "$FLOW_CONTEXT" == "Production" ]; then
+			cd /data/neos && composer install --no-dev --no-interaction --classmap-authoritative
+		else
+			cd /data/neos && composer install --no-interaction
+		fi
+
+		touch /data/.built
 
 	fi
 

@@ -1,8 +1,8 @@
 ## patriceckhart/docker-neos ##
-Neos CMS 🐳 docker image based on Alpine linux with nginx + php-fpm 8.3 🚀, packing everything needed for development and production usage of Neos.
+Neos CMS 🐳 docker image based on Alpine linux with nginx + php-fpm 8.4 🚀, packing everything needed for development and production usage of Neos.
 
 #### The image does a few things: ####
-Automatically install and provision a Neos CMS website or a Neos Flow application, based on environment vars documented below. Pack a few useful things like git, redis, ...
+Automatically provision a Neos CMS website or a Neos Flow application, based on environment vars documented below. Pack a few useful things like git, redis, ...
 
 ### Usage ###
 This image supports following environment variable for automatically configuring Neos at container startup:
@@ -23,7 +23,7 @@ This image supports following environment variable for automatically configuring
 
 ```yaml
 web:
-  image: patriceckhart/docker-neos:8.0
+  image: patriceckhart/docker-neos:8.4
   ports:
     - '80'
     - '22:22'
@@ -32,24 +32,18 @@ web:
   volumes:
     - /data
   environment:
-    CONTAINER_NAME: 'nameOfYourContainer'
     GITHUB_USERNAME: 'patriceckhart'
     GITHUB_TOKEN: 'yourgithubtoken'
     GITHUB_REPOSITORY: 'https://github.com/patriceckhart/NeosCMS-Boilerplate.git'
     GITHUB_REPOSITORY_BRANCH: '7.3'
     SITE_PACKAGE: 'Raw.Site'
-    RUN_DOCTRINE_MIGRATE: 1
-    RUN_DOCTRINE_UPDATE: 1
-    RUN_FLUSHCACHE: 1
     DB_DATABASE: 'db'
     DB_USER: 'admin'
     DB_PASS: 'password'
     DB_HOST: 'db'
-    NGINX_CLIENT_BODY_SIZE: '512M'
-    PERSISTENT_RESOURCES_FALLBACK_BASE_URI: 'https://foobar.com'
-    # a dev. subdomain automatically activates development mode
-    VIRTUAL_HOST: dev.neos.local
+    VIRTUAL_HOST: neos.dockyard.local
     PHP_TIMEZONE: 'Europe/Berlin'
+    NGINX_CLIENT_BODY_SIZE: '512M'
     PHP_MEMORY_LIMIT: '512M'
     PHP_UPLOAD_MAX_FILESIZE: '10M'
     PHP_MAX_EXECUTION_TIME: 240
@@ -65,9 +59,7 @@ mariadb:
     - /var/lib/data
   environment:
     MYSQL_DATABASE: 'neos'
-    MYSQL_USER: 'admin'
-    MYSQL_PASSWORD: 'password'
-    MYSQL_ROOT_PASSWORD: 'root'
+    MYSQL_ROOT_PASSWORD: 'dockyard'
   ports:
     - '3306:3306'
   command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -84,27 +76,18 @@ This procedure works with the following folders: `1min`, `5min`, `15min`, `30min
 ```
 #!/bin/sh
 
-cd /data/neos && ./flow backup:create
+cd /data/neos && flow backup:create
 ```
 
 ### SSH Access ###
 
 For development you can ssh into the container:
 
-`ssh www-data@yourvirtualhost.local -p <portnumber> -i ~/.ssh/yourPrivateSshKeyFile`
+`ssh www-data@neos.dockyard.local -p <portnumber> -i ~/.ssh/yourPrivateSshKeyFile`
 
 ### Helpful cli scripts ### (usage: docker exec ... or kubectl exec ...)
 
-| CLI command | Description |
-|---------|-------------|
-|flow|With `flow` you can execute `./flow` commands in every directory.|
-|pullapp|Pulls latest code from git repository. `--force` runs additionally `doctrine:migrate`, `doctrine:update` and `node:repair`.|
-|doctrinemigrate|Runs `doctrine:migrate`.|
-|doctrineupdate|Runs `doctrine:update`.|
-|flushcache|Flush all caches. `--removetempdir` removes the `Temporary` directory.|
-|installneos|Runs `composer install`. `--force` runs additionally `doctrine:migrate`, `doctrine:update` and `node:repair`.|
-|updateneos|Runs `composer update`. `--force` runs additionally `doctrine:migrate`, `doctrine:update` and `node:repair`.|
-|noderepair|Runs `node:repair`. `--force` runs additionally `node:repair` without confirmation-|
-|packagerescan|Runs `flow:package:rescan`.|
-|silent `command`|Runs every command in background.|
-|addtoken `command`|Add git token.|
+| CLI command | Description                                                                            |
+|-------------|----------------------------------------------------------------------------------------|
+| flow        | With `flow` you can execute `./flow` commands in every directory.                      |
+| warmup      | With `warmup` the sitemap.xml of Neos CMS is called and a frontend warmup is executed. |

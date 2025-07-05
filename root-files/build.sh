@@ -1,69 +1,58 @@
-#!/bin/bash
+#!/bin/sh
+set -ex
 
-GITFILE=/data/neos/.git
-PULLEDFILE=/data/.pulled
-BUILTFILE=/data/.built
+apk update
+apk add bash nano gettext git nginx tar curl postfix mariadb-client optipng freetype libjpeg-turbo-utils icu-dev vips-dev vips-tools openssh pwgen build-base
+apk add --virtual libtool freetype-dev libpng-dev libjpeg-turbo-dev yaml-dev libssh2-dev
+apk add --no-cache nginx nginx-mod-http-headers-more
 
-git config --global --add safe.directory /data/neos
+docker-php-ext-configure gd --with-freetype --with-jpeg
+docker-php-ext-install gd pdo pdo_mysql opcache intl exif
 
-if [ ! -z "${GITHUB_TOKEN+xxx}" ]; then
+apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev imagemagick-pdf ghostscript autoconf postgresql-dev
 
-	composer config -g github-oauth.github.com $GITHUB_TOKEN
+deluser www-data || true
+delgroup cdrw || true
+addgroup -g 80 www-data
+adduser -u 80 -G www-data -s /bin/bash -D www-data -h /data
+rm -Rf /home/www-data
 
-fi
+# PHP-FPM Config
+sed -i -e "s#listen = 9000#listen = /var/run/php-fpm.sock#" /usr/local/etc/php-fpm.d/zz-docker.conf
+echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+echo "listen.owner = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+echo "listen.mode = 0660" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+sed -i -e "s#listen = 127.0.0.1:9000#listen = /var/run/php-fpm.sock#" /usr/local/etc/php-fpm.d/www.conf
 
-if [ ! -z "${GITHUB_REPOSITORY+xxx}" ]; then
+chown 80:80 -R /var/lib/nginx
 
-	if [ ! -e "$PULLEDFILE" ]; then
+apk add --no-cache redis
+pecl install redis && docker-php-ext-enable redis
+docker-php-ext-install bcmath sysvsem && docker-php-ext-enable bcmath sysvsem
 
-		if [ -z ${GITHUB_TOKEN+x} ]; then
+docker-php-ext-install pdo_pgsql
 
-			if [ ! -e "$GITFILE" ]; then
-				git clone $GITHUB_REPOSITORY /data/neos
-			else
-				git pull $GITHUB_REPOSITORY /data/neos
-			fi
+apk add libzip-dev zip
+docker-php-ext-install zip
 
-		else
+# imagick
+git clone https://github.com/Imagick/imagick.git --depth 1 /tmp/imagick
+cd /tmp/imagick && git fetch origin master && git switch master
+phpize && ./configure && make && make install
+docker-php-ext-enable imagick
 
-			if [ ! -e "$GITFILE" ]; then
+pecl install vips && echo "extension=vips.so" > /usr/local/etc/php/conf.d/ext-vips.ini && docker-php-ext-enable --ini-name ext-vips.ini vips
+pecl install ssh2-1.3.1 && docker-php-ext-enable ssh2
+pecl install yaml && echo "extension=yaml.so" > /usr/local/etc/php/conf.d/ext-yaml.ini && docker-php-ext-enable --ini-name ext-yaml.ini yaml
 
-				cd /data/neos && git init
-				cd /data/neos && git remote add origin https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$GITHUB_REPOSITORY
-				cd /data/neos && git fetch
+curl -o /tmp/composer-setup.php https://getcomposer.org/installer
+php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION}
+rm -rf /tmp/composer-setup.php
 
-				if [ ! -e "$GITHUB_REPOSITORY_BRANCH" ]; then
+echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config
 
-					cd /data/neos && git checkout -t origin/$GITHUB_REPOSITORY_BRANCH
-
-				else
-
-					cd /data/neos && git checkout -t origin/master
-
-				fi
-
-			else
-				git pull https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$GITHUB_REPOSITORY /data/neos
-			fi
-
-		fi
-
-		touch /data/.pulled
-
-	fi
-
-	if [ ! -f "$BUILTFILE" ]; then
-
-		composer clear-cache --no-interaction
-
-		if [ "$FLOW_CONTEXT" == "Production" ]; then
-			cd /data/neos && composer install --no-dev --no-interaction
-		else
-			cd /data/neos && composer install --no-interaction
-		fi
-
-		touch /data/.built
-
-	fi
-
-fi
+rm -rf /var/cache/apk/*
+apk add tzdata && apk del tzdata
+rm -rf /var/cache/apk/*
+mkdir -p /run/nginx
