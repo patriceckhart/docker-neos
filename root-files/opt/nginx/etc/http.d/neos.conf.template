@@ -2,7 +2,7 @@ server {
 
   set ${DOLLAR}flowContext ${FLOW_CONTEXT};
 
-  server_name _;
+  server_name ~.*;
 
   listen 80;
   listen [::]:80;
@@ -10,7 +10,7 @@ server {
   listen [::]:443 ssl;
   ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
   ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
-  
+
   client_max_body_size ${NGINX_CLIENT_BODY_SIZE};
 
   root /data/neos/Web;
