@@ -29,12 +29,11 @@ RUN set -x \
 	&& addgroup -g 80 www-data \
 	&& adduser -u 80 -G www-data -s /bin/bash -D www-data -h /data \
 	&& rm -Rf /home/www-data \
-	&& sed -i -e "s#listen = 9000#listen = /var/run/php-fpm.sock#" /usr/local/etc/php-fpm.d/zz-docker.conf \
+	&& echo "listen = /var/run/php-fpm.sock" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& echo "listen.owner = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& echo "listen.mode = 0660" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
-	&& sed -i -e "s#listen = 127.0.0.1:9000#listen = /var/run/php-fpm.sock#" /usr/local/etc/php-fpm.d/www.conf \
 	&& chown 80:80 -R /var/lib/nginx \
 	&& apk add --no-cache redis \
 	&& docker-php-source extract \
