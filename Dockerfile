@@ -1,6 +1,6 @@
-FROM php:8.3-fpm-alpine3.19
+FROM php:8.3.36-fpm-alpine3.24
 
-MAINTAINER Patric Eckhart <mail@patriceckhart.com>
+LABEL maintainer="Patric Eckhart <mail@patriceckhart.com>"
 
 ENV COMPOSER_VERSION 2.7.9
 ENV PERSISTENT_RESOURCES_FALLBACK_BASE_URI 0
@@ -25,7 +25,7 @@ RUN set -x \
 		exif \
 	&& apk add --no-cache --virtual .deps imagemagick imagemagick-libs imagemagick-dev imagemagick-pdf ghostscript autoconf postgresql-dev \
 	&& deluser www-data \
-	&& delgroup cdrw \
+	&& (delgroup cdrw 2>/dev/null || true) \
 	&& addgroup -g 80 www-data \
 	&& adduser -u 80 -G www-data -s /bin/bash -D www-data -h /data \
 	&& rm -Rf /home/www-data \
@@ -37,7 +37,13 @@ RUN set -x \
 	&& sed -i -e "s#listen = 127.0.0.1:9000#listen = /var/run/php-fpm.sock#" /usr/local/etc/php-fpm.d/www.conf \
 	&& chown 80:80 -R /var/lib/nginx \
 	&& apk add --no-cache redis \
-	&& pecl install redis && docker-php-ext-enable redis \
+	&& docker-php-source extract \
+	&& curl -fsSL --retry 5 https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz | tar xz -C /usr/src/php/ext && mv /usr/src/php/ext/phpredis-6.3.0 /usr/src/php/ext/redis \
+	&& curl -fsSL --retry 5 https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz | tar xz -C /usr/src/php/ext && mv /usr/src/php/ext/imagick-3.8.1 /usr/src/php/ext/imagick \
+	&& curl -fsSL --retry 5 https://github.com/libvips/php-vips-ext/archive/b05b5c5ac4de172bd3fb0d1cfe063384a94cedbb.tar.gz | tar xz -C /usr/src/php/ext && mv /usr/src/php/ext/php-vips-ext-b05b5c5ac4de172bd3fb0d1cfe063384a94cedbb /usr/src/php/ext/vips \
+	&& curl -fsSL --retry 5 https://github.com/php/pecl-networking-ssh2/archive/refs/tags/1.5.0.tar.gz | tar xz -C /usr/src/php/ext && mv /usr/src/php/ext/pecl-networking-ssh2-1.5.0 /usr/src/php/ext/ssh2 \
+	&& curl -fsSL --retry 5 https://github.com/php/pecl-file_formats-yaml/archive/refs/tags/2.3.0.tar.gz | tar xz -C /usr/src/php/ext && mv /usr/src/php/ext/pecl-file_formats-yaml-2.3.0 /usr/src/php/ext/yaml \
+	&& docker-php-ext-install redis \
 	&& docker-php-ext-install bcmath && docker-php-ext-enable bcmath \
 	&& docker-php-ext-install sysvsem && docker-php-ext-enable sysvsem \
 	&& apk add imap-dev krb5-dev \
@@ -49,20 +55,12 @@ RUN set -x \
 	       libzip-dev \
 	       zip \
 	&& docker-php-ext-install zip \
-    && git clone https://github.com/Imagick/imagick.git --depth 1 /tmp/imagick && \
-           cd /tmp/imagick && \
-           git fetch origin master && \
-           git switch master && \
-           cd /tmp/imagick && \
-           phpize && \
-           ./configure && \
-           make && \
-           make install && \
-           docker-php-ext-enable imagick \
-	&& pecl install vips && echo "extension=vips.so" > /usr/local/etc/php/conf.d/ext-vips.ini && docker-php-ext-enable --ini-name ext-vips.ini vips \
+	&& docker-php-ext-install imagick \
+	&& CFLAGS="-Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion" docker-php-ext-install vips \
+	&& docker-php-ext-install ssh2 \
+	&& docker-php-ext-install yaml \
+	&& docker-php-source delete \
 	&& cd /tmp \
-	&& pecl install ssh2-1.3.1 && docker-php-ext-enable ssh2 \
-	&& pecl install yaml && echo "extension=yaml.so" > /usr/local/etc/php/conf.d/ext-yaml.ini && docker-php-ext-enable --ini-name ext-yaml.ini yaml \
 	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
 	&& echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config \
 	&& rm -rf /var/cache/apk/* \
